@@ -26,7 +26,7 @@ nameFILEtt = {ZeissFiles(:).name};
 % for the different files)
 
 zoom = 1;
-NSERIE = 1;
+NSERIE = 1;                 % if you have just one serie
 Nrad=360;                   % number of points used to map the contour
 dpix = [];                  % set the value if the reader doesn't extract it from the metadata (in m)
 Temp=273.15+25;             % temperature of the experiment, in K
@@ -80,7 +80,7 @@ for FILES = 1:size(nameFILEtt,2)
     
     save([ves(1:end-4),'_flickering_WIDTH',num2str(WIDTH),'.mat'])
     
-    % to print fig in pdf
+    % uncomment this to print fig in pdf (you can change the names of the files: now it gives the files a name which is ves_1, ves_2 for each file)
     %{
     set(gcf,'paperunits','centimeters');
     set(gcf,'paperposition', [1 1 11 7]); % left bottom width height

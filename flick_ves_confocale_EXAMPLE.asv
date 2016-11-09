@@ -42,7 +42,8 @@ for FILES = 1:size(nameFILEtt,2)
     
     % if nothing is specified it goes from the first to the last frame,
     % otherwise specify it in the argument as a vector with first frame as
-    % first element and last frame as second [first last]
+    % first element and last frame as second [first last], put it after
+    % zoom
     
     try
         movie=flickering_fluo_mod([DIR,ves],Nrad,Temp,NSERIE,zoom);
@@ -79,7 +80,7 @@ for FILES = 1:size(nameFILEtt,2)
     
     save([ves(1:end-4),'_flickering_WIDTH',num2str(WIDTH),'.mat'])
     
-    % to print fig in pdf
+    % uncomment this to print fig in pdf (you can change the names of the files: now it gives the files a name which is ves_1, ves_2 for each file)
     %{
     set(gcf,'paperunits','centimeters');
     set(gcf,'paperposition', [1 1 11 7]); % left bottom width height
