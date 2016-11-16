@@ -18,15 +18,16 @@ set(0,'DefaultFigureWindowStyle','docked')
 warning('off','MATLAB:namelengthmaxexceeded')
 
 DIR='./';
+%DIR='C:\Data\PaulB_flickData\';
 
-ZeissFiles = dir('*.czi');
+ZeissFiles = dir('*.lif');
 nameFILEtt = {ZeissFiles(:).name};
 
 % few things to define for the analysis (put this into the for if the parameters change
 % for the different files)
 
 zoom = 1;
-NSERIE = 1;
+NSERIE = 1;                 % if you have just one serie
 Nrad=360;                   % number of points used to map the contour
 dpix = [];                  % set the value if the reader doesn't extract it from the metadata (in m)
 Temp=273.15+25;             % temperature of the experiment, in K
@@ -34,7 +35,9 @@ WIDTH=30;                   % width (in pixels) of the detection ring
 plotting=true;
 fluo=false;                 % false confocal, true epifluorescence
 
-for FILES = 1:size(nameFILEtt,2)
+
+
+for FILES = 1:1%size(nameFILEtt,2)
     
     ves = char(nameFILEtt{FILES});
     
@@ -44,7 +47,10 @@ for FILES = 1:size(nameFILEtt,2)
     % otherwise specify it in the argument as a vector with first frame as
     % first element and last frame as second [first last], put it after
     % zoom
+    count = 0;
     
+    for NSERIE = [5:8,13:23]
+       count = count+1; 
     try
         movie=flickering_fluo_mod([DIR,ves],Nrad,Temp,NSERIE,zoom);
         %movie=flickering_Davide_3([DIR,ves],Nrad,dpix,Temp,NSERIE,zoom);
@@ -58,30 +64,31 @@ for FILES = 1:size(nameFILEtt,2)
         movie.dpix = dpix;
     end
     
-    % initialization of the radius and center and contour finding
     
-    movie.set_center('auto')
-    movie.set_radius(WIDTH,'auto')
-    movie.analyse_contour(true,fluo)
-    
-    % select frames without spikes and compute the spectrum
-    
-    close all
-    ttFrames = [movie.Frames2Analyse(1):size(movie.contour_fine,1)];
-    BADframes = checkCONTOUR(movie);
-    GoodFrames = setdiff(ttFrames,BADframes);
-    movie.get_spectrum(true,GoodFrames);
-    
-    % fit 
-    
-    movie.fit_vesicles_fluctuations(true);
-    
-    % save (change name if you want to)
-    
-    save([ves(1:end-4),'_flickering_WIDTH',num2str(WIDTH),'.mat'])
-    
-    % uncomment this to print fig in pdf (you can change the names of the files: now it gives the files a name which is ves_1, ves_2 for each file)
-    %{
+        % initialization of the radius and center and contour finding
+        
+        movie.set_center('auto')
+        movie.set_radius(WIDTH,'auto')
+        movie.analyse_contour(true,fluo)
+        
+        % select frames without spikes and compute the spectrum
+        
+        close all
+        ttFrames = [movie.Frames2Analyse(1):size(movie.contour_fine,1)];
+        BADframes = checkCONTOUR(movie);
+        GoodFrames = setdiff(ttFrames,BADframes);
+        movie.get_spectrum(true,GoodFrames);
+        
+        % fit
+        
+        movie.fit_vesicles_fluctuations(true);
+        
+        % save (change name if you want to)
+        
+        save([ves(1:end-4),'_flickering_WIDTH',num2str(WIDTH),'_VES_',num2str(count),'.mat'])
+        
+        % uncomment this to print fig in pdf (you can change the names of the files: now it gives the files a name which is ves_1, ves_2 for each file)
+        %{
     set(gcf,'paperunits','centimeters');
     set(gcf,'paperposition', [1 1 11 7]); % left bottom width height
     set(gca,'ticklength',[0.02 0.01],'Linewidth',0.7)
@@ -89,6 +96,6 @@ for FILES = 1:size(nameFILEtt,2)
     namefig_pdf = ['ves_' num2str(FILES) '.pdf'];
     print(namefig_eps, '-depsc');
     system(sprintf(['ps2pdf -dEPSCrop ' namefig_eps ' ' namefig_pdf]));
-    %}
-    
+        %}
+    end
 end

@@ -72,8 +72,8 @@ classdef flickering_fluo_mod < handle
                 NSERIE=varargin{1};
                 zoom=varargin{2};
             elseif nargin == 5 
-                zoom=varargin{1};
-            elseif nargin == 7;
+                NSERIE=varargin{1};
+            elseif nargin == 7
                 NSERIE=varargin{1};
                 zoom=varargin{2};
                 Frames2Analyse = varargin{3};
@@ -83,8 +83,7 @@ classdef flickering_fluo_mod < handle
             obj.Nrad=Nrad;
             obj.Temp=Temp;
             %obj.dpix=dpix./zoom;
-            
-            
+
             %reading the video file.
             
             if strfind(filename,'.movie')
@@ -94,9 +93,9 @@ classdef flickering_fluo_mod < handle
                     disp('Cannot open .movie videos');
                 end
             elseif strfind(filename,'.lif')
-                if which('bioreader');                  % for .lif and czi files same reader
+                if which('bioreader')                  % for .lif and czi files same reader
                     obj.video=bioreader(filename);
-                    obj.video.setSerie(NSERIE,zoom,0)
+                    obj.video.setSerie(NSERIE,zoom,0)   % this number here is the channel
                     obj.dpix=obj.video.dpix_zoom;
                 else
                     disp('Cannot open .lif videos');
@@ -105,7 +104,7 @@ classdef flickering_fluo_mod < handle
             elseif strfind(filename,'.czi')
                 if which('bioreader');
                     obj.video=bioreader(filename);      % this is to read avi files with metadata (Paul Beales data from Zeiss confocal)
-                    obj.video.setSerie(1,zoom,0)
+                    obj.video.setSerie(NSERIE,zoom,0)   % this number here is the channel
                 else
                 disp('Cannot open .avi with meta videos');
                 end 
@@ -535,15 +534,15 @@ classdef flickering_fluo_mod < handle
             
             dt_t=obj.dt;
             clog=cc(frame_range,:);
+            rr=clog*dpix_t;
+            data.R = mean(rr(:));
+            
+            %clog1 = clog-repmat(mean(clog,2),1,size(clog,2));
             clear cc
 
             if numel(clog)==0
                 error('Contour matrix is empty. Run the "analyse_contour" routine!');
             end
-            
-            %data initialization
-            rr=clog*dpix_t;
-            data.R = mean(rr(:));
             
             %perimeter calculation
             ang=linspace(0,2*pi,obj.Nrad)';
